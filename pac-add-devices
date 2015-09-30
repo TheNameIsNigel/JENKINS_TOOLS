@@ -110,7 +110,7 @@ def write_manifest(manifest, path):
 
 def get_device_dependencies(main_manifest, device):
     try:
-        depfile = open('vendor/pac/dependencies/%s.dependencies' % device, 'r')
+        depfile = open('vendor/carbon/dependencies/%s.dependencies' % device, 'r')
         deps = json.loads(depfile.read())
         depfile.close()
     except:
@@ -161,18 +161,18 @@ def get_device_list():
     #   is used by tier1 d2* devices.
     #blacklisted.add('ville')
     device_list = []
-    for root, subdirs, files in os.walk("vendor/pac/products"):
+    for root, subdirs, files in os.walk("vendor/carbon/products"):
         for f in files:
-            if not (f.startswith('pac_') and f.endswith('.mk')):
+            if not (f.startswith('carbon_') and f.endswith('.mk')):
                 continue
             d = f[4:-3]
             if d in blacklisted:
                 print('ineligible device %s: blacklisted' % d)
                 continue
-            if not os.path.exists('vendor/pac/dependencies/%s.dependencies' % d):
+            if not os.path.exists('vendor/carbon/dependencies/%s.dependencies' % d):
                 print('ineligible device %s: no dependencies' % d)
                 continue
-            if os.path.exists('vendor/pac/manifest/%s.adds' % d) or os.path.exists('vendor/pac/manifest/%s.removes' % d):
+            if os.path.exists('vendor/carbon/manifest/%s.adds' % d) or os.path.exists('vendor/carbon/manifest/%s.removes' % d):
                 print('ineligible device %s: has adds/removes' % d)
                 continue
             device_list.append(d)
@@ -181,9 +181,9 @@ def get_device_list():
 
 def project_name_priority(name):
     name_prio = {
-            'pac-rom/': 3,
-            'pac-' : 2,
-            'themuppets/': 1,
+            'carbonrom/': 3,
+            'carbon-' : 2,
+            'thedolls/': 1,
         }
 
     lower_name = name.lower()
@@ -238,7 +238,7 @@ if len(argv) > 0:
 
 main_manifest = load_main_manifest()
 full_device_list = get_device_list()
-nightly_list = load_nightly_list('vendor/pac/nightly.xml')
+nightly_list = load_nightly_list('vendor/carbon/nightly.xml')
 device_dependencies = {}
 removes = set() # XXX: cannot remove during iteration
 for d in full_device_list:
