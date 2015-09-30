@@ -22,23 +22,6 @@ echo "Out - $OUT_DIR_COMMON_BASE - set"
 
 PATH="$HOME/jenk-bin:$PATH"
 
-# Read Jenkins config
-export jenkins_pac_conf=$HOME/.jenkins/config
-if [ -f $jenkins_pac_conf ]; then
-    ccache_root=`grep "ccache_root" $jenkins_pac_conf | cut -d'=' -f2`
-    if [ "$ccache_root" != "not_set" ]; then
-        export CCACHE_ROOT=$ccache_root
-    fi
-    ccache_big=`grep "ccache_big" $jenkins_pac_conf | cut -d'=' -f2`
-    if [ "$ccache_big" != "not_set" ]; then
-        export CCACHE_BIG=$ccache_big
-    fi
-    src_dir=`grep "src_dir" $jenkins_pac_conf | cut -d'=' -f2`
-    if [ "$src_dir" != "not_set" ]; then
-        export SRC_DIR=$src_dir
-    fi
-fi
-
 if [ -z "$SRC_DIR" ]; then
     SRC_DIR="$HOME/src"
 fi
@@ -65,13 +48,13 @@ export OUT_BASE=$OUT_TOP/$Version
 mkdir -p "$OUT_BASE"
 
 date_no_time=`date -u +%Y%m%d`
-export BASE_NAME="pac_$Device-lp-mr1-$Version-${date_no_time}"
+export BASE_NAME="CARBON-5.1.1-$CARBON-$Version-${date_no_time}-$Device"
 export OUT_MD5SUM=$OUT_BASE/$BASE_NAME.zip.md5sum
 export logpath=$OUT_BASE/$BASE_NAME.log
 export outzip=$OUT_BASE/$BASE_NAME.zip
 
 REMOTE_DIR=$Device/$Version
-REMOTE_DOWNLOAD_HOST="pacman.basketbuild.com"
+REMOTE_DOWNLOAD_HOST="carbonrom.basketbuild.com"
 
 # JAVA_HOME
 export PATH=$PATH:/usr/bin
@@ -85,14 +68,6 @@ cd "$BUILD_TOP"
 
 # Colors
 . ./vendor/pac/tools/colors
-
-echo "New Game"
-echo ""
-echo "Server Time $BUILD_ID"
-echo "Building $Device for $Tree"
-echo ""
-echo "Player $BUILD_NUMBER Start!"
-echo ""
 
 CheckReturn(){
 
@@ -115,35 +90,13 @@ get_elapsed(){
     printf "%02d:%02d:%02d" $h $m $s
 }
 
-
-update_ota()
-{
-    {
-    local device="$1"
-    local pathname="$2"
-    local filename
-    local md5
-    local dlurl
-    local otatype
-    local otaver
-    filename=$(basename $pathname)
-    md5=$(md5sum "$pathname" | cut -c-32)
-    dlurl="http://$REMOTE_DOWNLOAD_HOST/download.php?file=main/$device/$Type/$filename"
-    otatype=$Type
-    otaver=${filename%.*}
-    pac-push-ota "$otatype" "$device" "$otaver" "$md5" "$dlurl"
-    } &> /dev/null
-    echo "Sent OTA $device $filename MD5 $md5 OTA"
-}
-
-
 if [ -d "$BUILD_TOP/.repo" ]; then
     echo "Sources Found at $BUILD_TOP"
 else
     echo "No Sources Configuring!"
     mkdir -p "$BUILD_TOP"
     cd "$BUILD_TOP"
-    repo init -u https://github.com/PAC-ROM/pac-rom -b $Tree
+    repo init -u https://github.com/CarbonROM/android -b $Tree
     CheckReturn $?
     repo sync -j8 --force-sync
     CheckReturn $?
